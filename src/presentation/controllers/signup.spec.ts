@@ -20,7 +20,7 @@ describe('SingUpController', () => {
          new MissingParamError('name'),
          new MissingParamError('email'),
          new MissingParamError('password'),
-         new MissingParamError('password_confirmation')
+         new MissingParamError('passwordConfirmation')
         ] )
   })
 })
