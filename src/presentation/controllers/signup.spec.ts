@@ -1,10 +1,14 @@
 import { SignUpController } from './signupController'
 import { MissingParamError } from '../errors/missing-param-error'
-import { HttpRequest, HttpResponse } from '../../protocols/http'
+import { HttpRequest, HttpResponse } from '../protocols/http'
+
+const makeSut = () => {
+    return new SignUpController()
+}
 
 describe('SingUpController', () => {
   test('Should return 400 if validaton don\'t pass', () => {
-    const sut = new SignUpController()
+    const sut = makeSut()
     const httpRequest: HttpRequest = {
         body: {
         }
