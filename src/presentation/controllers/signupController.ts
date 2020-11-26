@@ -5,13 +5,11 @@ export class SignUpController {
 
   handle(httpRequest: HttpRequest): HttpResponse {
     const body = []
-    const validationRules = {
-      1: !httpRequest.body.name 
-          ? body.push(new MissingParamError('name')) 
-          : null,
-      2: !httpRequest.body.email 
-          ? body.push(new MissingParamError('email')) 
-          : null,
+    const requiredFields = ['name', 'email']
+    for (const field of requiredFields) {
+      if (!httpRequest.body[field]){
+        body.push(new MissingParamError(field))
+      }
     }
 
     return {
