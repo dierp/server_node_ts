@@ -8,6 +8,7 @@ export class SignUpController implements Controller {
     try{
 
       const errors = []
+      const { name, email, password, passwordConfirmation } = httpRequest.body
       const requiredFields = ['name', 'email', 'password', 'passwordConfirmation']
       for (const field of requiredFields) {
         if (!httpRequest.body[field]){
@@ -15,7 +16,7 @@ export class SignUpController implements Controller {
         }
       }
   
-      if (httpRequest.body.password !== httpRequest.body.password_confirmation) {
+      if (password !== passwordConfirmation) {
         errors.push(new InvalidParamError('passwordConfirmation'))
       }
   
