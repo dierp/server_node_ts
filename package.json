@@ -1,0 +1,28 @@
+{
+  "name": "server_node_ts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dierp/server_node_ts.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dierp/server_node_ts/issues"
+  },
+  "homepage": "https://github.com/dierp/server_node_ts#readme",
+  "dependencies": {
+    "eslint-config-standard-with-typescript": "^19.0.1",
+    "git-commit-msg-linter": "^3.0.0",
+    "typescript": "^4.1.2"
+  },
+  "devDependencies": {
+    "husky": "^4.3.0"
+  }
+}
