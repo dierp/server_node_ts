@@ -7,14 +7,16 @@ describe('SingUpController', () => {
     const sut = new SignUpController()
     const httpRequest: HttpRequest = {
         body: {
-            email: 'my_email@email.com',
-            password: 'my_password',
-            passwordConfirmation: 'my_password',
         }
     }
 
     const httpResponse: HttpResponse = sut.handle(httpRequest)
     expect (httpResponse.statusCode).toBe(400)
-    expect (httpResponse.body).toEqual( [ new MissingParamError('name') ] )
+    expect (httpResponse.body).toEqual( [
+         new MissingParamError('name'),
+         new MissingParamError('email'),
+         new MissingParamError('password'),
+         new MissingParamError('password_confirmation')
+        ] )
   })
 })
