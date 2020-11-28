@@ -1,7 +1,8 @@
 import { Controller, EmailValidator, HttpRequest, HttpResponse } from '../protocols'
 import { MissingParamError, InvalidParamError, ServerError, UserAlreadyExistsError } from '../errors'
-import { badRequest } from '../helpers'
+import { badRequest, serverError, ok } from '../helpers'
 import { AddUser } from '../../domain/usecases/add-user'
+import { User } from '../../domain/models/user'
 
 export class SignUpController implements Controller {
   private readonly emailValidator: EmailValidator
@@ -40,24 +41,19 @@ export class SignUpController implements Controller {
       }
 
       if (errors.length === 0) {
-        this.addUser.add({
+        const createdUser: User = this.addUser.add({
           name,
           email,
           password
         })
+
+        return ok<User>(createdUser)
+      } else {
+        return badRequest(errors)
       }
-  
-      return errors.length > 0 
-        ? badRequest(errors)
-        : {
-          body: [],
-          statusCode: 200
-        }
+
     } catch (error){
-      return {
-        body: [ new ServerError() ],
-        statusCode: 500
-      }
+      return serverError()
     }
   }
 }

@@ -37,7 +37,12 @@ const makeEmailValidator = () => {
 const makeAddUser = () => {
   class AddUserStub implements AddUser {
     add (user: Pick<User, "name" | "email" | "password">) {
-      return true
+      return {
+        id: 1,
+        name: "fake_name",
+        email: "fake_email",
+        password: "fake_password"
+      }
     }
   }
   return new AddUserStub()
@@ -159,5 +164,27 @@ describe('SingUpController', () => {
     expect (httpResponse.body).toEqual( [
       new ServerError()
     ])
+  }),
+
+  test('Should return 200 and added user if data is correct', () => {
+    const { sut } = makeSut()
+    const httpRequest: HttpRequest = {
+      body: {
+        name: 'any_name',
+        email: 'email@mail.com',
+        password: 'any_password',
+        passwordConfirmation: 'any_password'
+      }
+    }
+
+    const httpResponse: HttpResponse = sut.handle(httpRequest)
+    expect (httpResponse.statusCode).toBe(200)
+    expect (httpResponse.body).toEqual( {
+      id: 1,
+      name: "fake_name",
+      email: "fake_email",
+      password: "fake_password"
+    } )
   })
+
 })
