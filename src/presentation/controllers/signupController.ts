@@ -1,12 +1,18 @@
 import { Controller, EmailValidator, HttpRequest, HttpResponse } from '../protocols'
 import { MissingParamError, InvalidParamError, ServerError, UserAlreadyExistsError } from '../errors'
 import { badRequest } from '../helpers'
+import { AddUser } from '../../domain/usecases/add-user'
 
 export class SignUpController implements Controller {
   private readonly emailValidator: EmailValidator
+  private readonly addUser: AddUser
 
-  constructor (emailValidator: EmailValidator) {
+  constructor (
+    emailValidator: EmailValidator,
+    addUser: AddUser
+    ) {
     this.emailValidator = emailValidator
+    this.addUser = addUser
   }
 
   handle(httpRequest: HttpRequest): HttpResponse {
@@ -31,6 +37,14 @@ export class SignUpController implements Controller {
 
       if (!this.emailValidator.alreadyExists( email )) {
         errors.push( new UserAlreadyExistsError('email') )
+      }
+
+      if (errors.length === 0) {
+        this.addUser.add({
+          name,
+          email,
+          password
+        })
       }
   
       return errors.length > 0 

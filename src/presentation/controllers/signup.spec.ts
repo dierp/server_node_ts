@@ -2,18 +2,23 @@ import { SignUpController } from './signupController'
 import { MissingParamError } from '../errors/missing-param-error'
 import { HttpRequest, HttpResponse, EmailValidator } from '../protocols'
 import { InvalidParamError, ServerError, UserAlreadyExistsError } from '../errors'
+import { AddUser } from '../../domain/usecases/add-user'
+import { User } from '../../domain/models/user'
 
 interface Sut {
   sut: SignUpController
   instanceEmailValidator: EmailValidator,
+  instanceAddUser: AddUser
 }
 
 const makeSut = (): Sut => {
   const instanceEmailValidator = makeEmailValidator()
-  const sut = new SignUpController(instanceEmailValidator)
+  const instanceAddUser = makeAddUser()
+  const sut = new SignUpController(instanceEmailValidator, instanceAddUser)
   return {
     sut,
-    instanceEmailValidator
+    instanceEmailValidator,
+    instanceAddUser
   }
 }
 
@@ -27,6 +32,15 @@ const makeEmailValidator = () => {
     }
   }
   return new EmailValidatorStub()
+}
+
+const makeAddUser = () => {
+  class AddUserStub implements AddUser {
+    add (user: Pick<User, "name" | "email" | "password">) {
+      return true
+    }
+  }
+  return new AddUserStub()
 }
 
 describe('SingUpController', () => {
@@ -103,9 +117,31 @@ describe('SingUpController', () => {
         ] )
   })
 
-  test('Should return 500 if an exception occur', () => {
+  test('Should return 500 if an exception occur with emailValidator', () => {
     const { sut, instanceEmailValidator } = makeSut()
     jest.spyOn(instanceEmailValidator, 'alreadyExists').mockImplementationOnce(() => {
+      throw new Error()
+    })
+
+    const httpRequest: HttpRequest = {
+      body: {
+        name: 'any_name',
+        email: 'email@mail.com',
+        password: 'any_password',
+        passwordConfirmation: 'any_password'
+      }
+    }
+
+    const httpResponse: HttpResponse = sut.handle(httpRequest)
+    expect (httpResponse.statusCode).toBe(500)
+    expect (httpResponse.body).toEqual( [
+      new ServerError()
+    ])
+  }),
+
+  test('Should return 500 if an exception occur with addUser', () => {
+    const { sut, instanceAddUser } = makeSut()
+    jest.spyOn(instanceAddUser, 'add').mockImplementationOnce(() => {
       throw new Error()
     })
 
