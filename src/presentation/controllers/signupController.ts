@@ -1,8 +1,13 @@
-import { Controller, HttpRequest, HttpResponse } from '../protocols'
-import { MissingParamError, InvalidParamError, ServerError } from '../errors'
+import { Controller, EmailValidator, HttpRequest, HttpResponse } from '../protocols'
+import { MissingParamError, InvalidParamError, ServerError, UserAlreadyExistsError } from '../errors'
 import { badRequest } from '../helpers'
 
 export class SignUpController implements Controller {
+  private readonly emailValidator: EmailValidator
+
+  constructor (emailValidator: EmailValidator) {
+    this.emailValidator = emailValidator
+  }
 
   handle(httpRequest: HttpRequest): HttpResponse {
     try{
@@ -19,6 +24,14 @@ export class SignUpController implements Controller {
       if (password !== passwordConfirmation) {
         errors.push(new InvalidParamError('passwordConfirmation'))
       }
+
+      if (!this.emailValidator.isValid( email )) {
+        errors.push( new InvalidParamError('email') )
+      }
+
+      if (!this.emailValidator.alreadyExists( email )) {
+        errors.push( new UserAlreadyExistsError('email') )
+      }
   
       return errors.length > 0 
         ? badRequest(errors)
@@ -29,7 +42,7 @@ export class SignUpController implements Controller {
     } catch (error){
       return {
         body: [ new ServerError() ],
-        statusCode: 200
+        statusCode: 500
       }
     }
   }
