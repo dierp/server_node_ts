@@ -7,6 +7,7 @@ export class DbAddUser implements AddUser {
     constructor(private encrypter: Encrypter){}
 
     async add(user: Pick<User, "name" | "email" | "password">): Promise<User> {
+        
         await this.encrypter.encrypt(user.password)
         return new Promise(resolve => resolve({
             id: 1,
