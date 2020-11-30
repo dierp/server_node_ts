@@ -1,7 +1,7 @@
 import { Controller, EmailValidator, EmailExistance, HttpRequest, HttpResponse } from '../protocols'
 import { MissingParamError, InvalidParamError, UserAlreadyExistsError } from '../errors'
 import { badRequest, serverError, ok } from '../helpers'
-import { AddUser } from '../../domain/usecases/add-user'
+import { AddUser } from '../../domain/usecases/add-user/add-user'
 import { User } from '../../domain/models/user'
 
 export class SignUpController implements Controller {

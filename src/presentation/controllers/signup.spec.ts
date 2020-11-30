@@ -2,7 +2,7 @@ import { SignUpController } from './signupController'
 import { MissingParamError } from '../errors/missing-param-error'
 import { HttpRequest, HttpResponse, EmailValidator, EmailExistance } from '../protocols'
 import { InvalidParamError, ServerError, UserAlreadyExistsError } from '../errors'
-import { AddUser } from '../../domain/usecases/add-user'
+import { AddUser } from '../../domain/usecases/add-user/add-user'
 import { User } from '../../domain/models/user'
 
 interface Sut {
