@@ -16,7 +16,7 @@ export class SignUpController implements Controller {
     this.addUser = addUser
   }
 
-  handle(httpRequest: HttpRequest): HttpResponse {
+  async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     try{
 
       const errors = []
@@ -36,12 +36,12 @@ export class SignUpController implements Controller {
         errors.push( new InvalidParamError('email') )
       }
 
-      if (!this.emailValidator.alreadyExists( email )) {
+      if ( ! await this.emailValidator.alreadyExists( email )) {
         errors.push( new UserAlreadyExistsError('email') )
       }
 
       if (errors.length === 0) {
-        const createdUser: User = this.addUser.add({
+        const createdUser: User = await this.addUser.add({
           name,
           email,
           password

@@ -27,7 +27,7 @@ const makeEmailValidator = () => {
     isValid (email: string) {
       return true
     }
-    alreadyExists (email: string) {
+    async alreadyExists (email: string): Promise<boolean> {
       return true
     }
   }
@@ -36,27 +36,28 @@ const makeEmailValidator = () => {
 
 const makeAddUser = () => {
   class AddUserStub implements AddUser {
-    add (user: Pick<User, "name" | "email" | "password">) {
-      return {
+    async add (user: Pick<User, "name" | "email" | "password">): Promise<User> {
+      return new Promise( resolve => resolve ({
         id: 1,
         name: "fake_name",
         email: "fake_email",
         password: "fake_password"
-      }
+      })
+      )
     }
   }
   return new AddUserStub()
 }
 
 describe('SingUpController', () => {
-  test('Should return 400 if there is a missing parameter', () => {
+  test('Should return 400 if there is a missing parameter', async () => {
     const { sut } = makeSut()
     const httpRequest: HttpRequest = {
         body: {
         }
     }
 
-    const httpResponse: HttpResponse = sut.handle(httpRequest)
+    const httpResponse: HttpResponse = await sut.handle(httpRequest)
     expect (httpResponse.statusCode).toBe(400)
     expect (httpResponse.body).toEqual( [
          new MissingParamError('name'),
@@ -66,7 +67,7 @@ describe('SingUpController', () => {
         ] )
   }),
 
-  test('Should return 400 if email is not valid', () => {
+  test('Should return 400 if email is not valid', async () => {
 
     const { sut, instanceEmailValidator } = makeSut()
     jest.spyOn(instanceEmailValidator, 'isValid').mockReturnValueOnce(false)
@@ -78,16 +79,20 @@ describe('SingUpController', () => {
         passwordConfirmation: 'any_password'
       }
     }
-    const httpResponse: HttpResponse = sut.handle(httpRequest)
+    const httpResponse: HttpResponse = await sut.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body).toEqual( [
       new InvalidParamError('email')
     ] )
   }),
 
-  test('Should return 400 if email already exists', () => {
+  test('Should return 400 if email already exists', async () => {
     const { sut, instanceEmailValidator } = makeSut()
-    jest.spyOn(instanceEmailValidator, 'alreadyExists').mockReturnValueOnce(false)
+    jest.spyOn(instanceEmailValidator, 'alreadyExists').mockImplementationOnce(async () => {
+      return new Promise( (resolve, reject) => {
+        resolve(false)
+      })
+    })
     const httpRequest: HttpRequest = {
       body: {
         name: 'any_name',
@@ -97,14 +102,14 @@ describe('SingUpController', () => {
       }
     } 
 
-    const httpResponse: HttpResponse = sut.handle(httpRequest)
+    const httpResponse: HttpResponse = await sut.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body).toEqual( [
       new UserAlreadyExistsError('email')
     ] )
   }),
 
-  test('Should return 400 if passwords dont match', () => {
+  test('Should return 400 if passwords dont match', async () => {
     const { sut } = makeSut()
     const httpRequest: HttpRequest = {
       body: {
@@ -115,17 +120,19 @@ describe('SingUpController', () => {
       }
     }
 
-    const httpResponse: HttpResponse = sut.handle(httpRequest)
+    const httpResponse: HttpResponse = await sut.handle(httpRequest)
     expect (httpResponse.statusCode).toBe(400)
     expect (httpResponse.body).toEqual( [
       new InvalidParamError('passwordConfirmation')
         ] )
   })
 
-  test('Should return 500 if an exception occur with emailValidator', () => {
+  test('Should return 500 if an exception occur with emailValidator', async () => {
     const { sut, instanceEmailValidator } = makeSut()
-    jest.spyOn(instanceEmailValidator, 'alreadyExists').mockImplementationOnce(() => {
-      throw new Error()
+    jest.spyOn(instanceEmailValidator, 'alreadyExists').mockImplementationOnce(async () => {
+      return new Promise( (resolve, reject) => {
+        reject(new Error())
+      })
     })
 
     const httpRequest: HttpRequest = {
@@ -137,17 +144,19 @@ describe('SingUpController', () => {
       }
     }
 
-    const httpResponse: HttpResponse = sut.handle(httpRequest)
+    const httpResponse: HttpResponse = await sut.handle(httpRequest)
     expect (httpResponse.statusCode).toBe(500)
     expect (httpResponse.body).toEqual( [
       new ServerError()
     ])
   }),
 
-  test('Should return 500 if an exception occur with addUser', () => {
+  test('Should return 500 if an exception occur with addUser', async () => {
     const { sut, instanceAddUser } = makeSut()
     jest.spyOn(instanceAddUser, 'add').mockImplementationOnce(() => {
-      throw new Error()
+      return new Promise( (resolve, reject) => {
+        reject(new Error())
+      })
     })
 
     const httpRequest: HttpRequest = {
@@ -159,14 +168,14 @@ describe('SingUpController', () => {
       }
     }
 
-    const httpResponse: HttpResponse = sut.handle(httpRequest)
+    const httpResponse: HttpResponse = await sut.handle(httpRequest)
     expect (httpResponse.statusCode).toBe(500)
     expect (httpResponse.body).toEqual( [
       new ServerError()
     ])
   }),
 
-  test('Should return 200 and added user if data is correct', () => {
+  test('Should return 200 and added user if data is correct', async () => {
     const { sut } = makeSut()
     const httpRequest: HttpRequest = {
       body: {
@@ -177,7 +186,7 @@ describe('SingUpController', () => {
       }
     }
 
-    const httpResponse: HttpResponse = sut.handle(httpRequest)
+    const httpResponse: HttpResponse = await sut.handle(httpRequest)
     expect (httpResponse.statusCode).toBe(200)
     expect (httpResponse.body).toEqual( {
       id: 1,
