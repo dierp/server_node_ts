@@ -1,6 +1,6 @@
 import { SignUpController } from './signupController'
 import { MissingParamError } from '../errors/missing-param-error'
-import { HttpRequest, HttpResponse, EmailValidator } from '../protocols'
+import { HttpRequest, HttpResponse, EmailValidator, EmailExistance } from '../protocols'
 import { InvalidParamError, ServerError, UserAlreadyExistsError } from '../errors'
 import { AddUser } from '../../domain/usecases/add-user'
 import { User } from '../../domain/models/user'
@@ -8,16 +8,22 @@ import { User } from '../../domain/models/user'
 interface Sut {
   sut: SignUpController
   instanceEmailValidator: EmailValidator,
+  instanceEmailExistance: EmailExistance,
   instanceAddUser: AddUser
 }
 
 const makeSut = (): Sut => {
   const instanceEmailValidator = makeEmailValidator()
+  const instanceEmailExistance = makeEmailExistance()
   const instanceAddUser = makeAddUser()
-  const sut = new SignUpController(instanceEmailValidator, instanceAddUser)
+  const sut = new SignUpController(
+    instanceEmailValidator,
+    instanceEmailExistance,
+    instanceAddUser)
   return {
     sut,
     instanceEmailValidator,
+    instanceEmailExistance,
     instanceAddUser
   }
 }
@@ -27,11 +33,17 @@ const makeEmailValidator = () => {
     isValid (email: string) {
       return true
     }
+  }
+  return new EmailValidatorStub()
+}
+
+const makeEmailExistance = () => {
+  class EmailExistanceStub implements EmailExistance {
     async alreadyExists (email: string): Promise<boolean> {
       return true
     }
   }
-  return new EmailValidatorStub()
+  return new EmailExistanceStub()
 }
 
 const makeAddUser = () => {
@@ -87,8 +99,8 @@ describe('SingUpController', () => {
   }),
 
   test('Should return 400 if email already exists', async () => {
-    const { sut, instanceEmailValidator } = makeSut()
-    jest.spyOn(instanceEmailValidator, 'alreadyExists').mockImplementationOnce(async () => {
+    const { sut, instanceEmailExistance } = makeSut()
+    jest.spyOn(instanceEmailExistance, 'alreadyExists').mockImplementationOnce(async () => {
       return new Promise( (resolve, reject) => {
         resolve(false)
       })
@@ -127,9 +139,9 @@ describe('SingUpController', () => {
         ] )
   })
 
-  test('Should return 500 if an exception occur with emailValidator', async () => {
-    const { sut, instanceEmailValidator } = makeSut()
-    jest.spyOn(instanceEmailValidator, 'alreadyExists').mockImplementationOnce(async () => {
+  test('Should return 500 if an exception occur during handle', async () => {
+    const { sut, instanceEmailExistance } = makeSut()
+    jest.spyOn(instanceEmailExistance, 'alreadyExists').mockImplementationOnce(async () => {
       return new Promise( (resolve, reject) => {
         reject(new Error())
       })
