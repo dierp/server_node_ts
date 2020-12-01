@@ -100,6 +100,21 @@ describe('Add User', () => {
       email: "valid_email",
       password: "hashed_password"
     })
+  }),
+
+  test('Should receive user addded from AddUserRepository', async () => {
+    const { sut } = makeSut()
+    const add = await sut.add({
+      name: "valid_name",
+      email: "valid_email",
+      password: "valid_pass"
+    })
+    expect(add).toEqual({
+      id: 1,
+      name: "valid_name",
+      email: "valid_email"
+    })
+
   })
 
 })
