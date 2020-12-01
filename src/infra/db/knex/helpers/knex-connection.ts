@@ -4,11 +4,11 @@ export const connect = () => {
     return knex({
         client: 'mysql',
         connection: {
-            host : '127.0.0.1',
-            user : 'root',
-            password : 'root',
-            database : 'jsts',
-            connectTimeout: 90000,
+            host: process.env.APP_DB_HOST,
+            port: +process.env.APP_DB_PORT,
+            database: process.env.APP_DB_NAME,
+            user: process.env.APP_DB_USER,
+            password: process.env.APP_DB_PASSWORD,
             typeCast: (field, next) => {
             if (field.type == 'TIMESTAMP' || field.type == 'DATETIME') {
                 return field.string()
@@ -21,7 +21,7 @@ export const connect = () => {
             max: 20
         },
         migrations: {
-            tableName: 'knex_migrations'
+            tableName: './knex_migrations'
         }
       })
 }

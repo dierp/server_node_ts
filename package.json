@@ -4,6 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "db:migrate": "knex migrate:latest",
+    "db:rollback": "knex migrate:rollback",
+    "db:createMigration": "knex migrate:make",
     "test": "jest --watch",
     "test:staged": "jest",
     "test:ci": "jest --coverage",
