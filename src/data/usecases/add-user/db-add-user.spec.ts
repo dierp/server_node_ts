@@ -77,12 +77,12 @@ describe('Add User', () => {
     const add = await sut.add({
         name: "valid_name",
         email: "valid_email",
-        password: "hashed_pass"
+        password: "valid_pass"
     })
     expect(addSpy).toHaveBeenCalledWith({
       name: "valid_name",
       email: "valid_email",
-      password: "hashed_pass"
+      password: "hashed_password"
     })
   })
 

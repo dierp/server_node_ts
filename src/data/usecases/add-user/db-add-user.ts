@@ -12,8 +12,10 @@ export class DbAddUser implements AddUser {
 
     async add(user: Pick<User, "name" | "email" | "password">): Promise<Omit<User, "password">> {
         
-        await this.encrypter.encrypt(user.password)
-        const userAdded = await this.addUserRepository.add(user)
+        const hashedPassword = await this.encrypter.encrypt(user.password)
+        const userAdded = await this.addUserRepository.add(
+            Object.assign({}, user, { password: hashedPassword })
+        )
         return new Promise(resolve => resolve(userAdded))
     }
 }
