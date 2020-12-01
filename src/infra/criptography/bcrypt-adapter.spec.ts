@@ -4,9 +4,8 @@ import { BcryptAdapter } from "./bcrypt-adapter";
 export interface SutTypes {
     sut: BcryptAdapter
 }
-
+const salt = 12
 const makeSut = (): SutTypes => {
-    const salt = 12
     const sut = new BcryptAdapter(salt)
     return {
         sut
@@ -21,7 +20,7 @@ jest.mock('bcrypt', () => ({
 
 describe('BcryptAdapter', () => {
   test('Ensure integration between bcryptAdatper and Encrypter', async () => {
-    const salt = 12
+    
     const { sut } = makeSut()
     const hashSpy = jest.spyOn(bcrypt, 'hash')
     await sut.encrypt('any_value')
