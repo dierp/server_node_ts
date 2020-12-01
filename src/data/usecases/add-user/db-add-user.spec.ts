@@ -71,6 +71,22 @@ describe('Add User', () => {
     await expect(add).rejects.toThrow()
   }),
 
+  test('Should throw error if AddUserRepository throws', async () => {
+    const { sut, addUserRepository } = makeSut()
+    jest.spyOn(addUserRepository, 'add').mockReturnValueOnce(
+      new Promise<Omit<User, "password">>((resolve, reject) => {
+        reject(new Error())
+      })
+    )
+    const add = sut.add({
+      name: "valid_name",
+      email: "valid_email",
+      password: "valid_pass"
+    })
+
+    await expect(add).rejects.toThrow()
+  }),
+
   test('Should call AddUserRepository with correct params', async () => {
     const { sut, addUserRepository } = makeSut()
     const addSpy = jest.spyOn(addUserRepository, 'add')
