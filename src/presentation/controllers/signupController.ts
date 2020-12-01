@@ -44,13 +44,13 @@ export class SignUpController implements Controller {
       }
 
       if (errors.length === 0) {
-        const createdUser: User = await this.addUser.add({
+        const createdUser: Omit<User, "password"> = await this.addUser.add({
           name,
           email,
           password
         })
 
-        return ok<User>(createdUser)
+        return ok<Omit<User, "password">>(createdUser)
       } else {
         return badRequest(errors)
       }

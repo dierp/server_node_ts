@@ -6,6 +6,8 @@
   "scripts": {
     "test": "jest --watch",
     "test:staged": "jest",
+    "test:ci": "jest --coverage",
+    "test:verbose": "jest --passWithNoTests --runInBand",
     "eslint": "npx eslint --fix src/**/*.ts"
   },
   "repository": {
