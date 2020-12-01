@@ -16,6 +16,6 @@ export class DbAddUser implements AddUser {
         const userAdded = await this.addUserRepository.add(
             Object.assign({}, user, { password: hashedPassword })
         )
-        return new Promise(resolve => resolve(userAdded))
+        return userAdded
     }
 }
