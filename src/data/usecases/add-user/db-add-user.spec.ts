@@ -1,3 +1,5 @@
+import { User } from "../../../domain/models/user";
+import { AddUserRepository } from "../../protocols/add-user-repository";
 import { Encrypter } from "../../protocols/encrypter";
 import { DbAddUser } from "./db-add-user";
 
@@ -7,19 +9,37 @@ class EncrypterStub implements Encrypter {
   }
 }
 
-export interface SuTtypes {
+class AddUserRepositoryStub {
+  async add(user: Pick<User, "name" | "email" | "password">): 
+    Promise<Omit<User, "password">>{
+    return new Promise((resolve, reject) => {
+      resolve(
+        {
+          id: 1,
+          name: "valid_name",
+          email: "valid_email"
+        }
+      )
+    })
+  }
+}
+
+export interface SutTypes {
   instanceEncrypter: EncrypterStub,
+  addUserRepository: AddUserRepository,
   sut: DbAddUser
 }
 
-const makeSut = (): SuTtypes => {
+const makeSut = (): SutTypes => {
 
   const instanceEncrypter = new EncrypterStub()
-  const sut = new DbAddUser(instanceEncrypter)
+  const addUserRepository = new AddUserRepositoryStub()
+  const sut = new DbAddUser(instanceEncrypter, addUserRepository)
 
   return {
     sut,
-    instanceEncrypter
+    instanceEncrypter,
+    addUserRepository
   }
 }
 
@@ -49,6 +69,21 @@ describe('Add User', () => {
     })
 
     await expect(add).rejects.toThrow()
+  }),
+
+  test('Should call AddUserRepository with correct params', async () => {
+    const { sut, addUserRepository } = makeSut()
+    const addSpy = jest.spyOn(addUserRepository, 'add')
+    const add = await sut.add({
+        name: "valid_name",
+        email: "valid_email",
+        password: "hashed_pass"
+    })
+    expect(addSpy).toHaveBeenCalledWith({
+      name: "valid_name",
+      email: "valid_email",
+      password: "hashed_pass"
+    })
   })
 
 })

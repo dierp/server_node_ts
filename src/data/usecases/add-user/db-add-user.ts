@@ -1,19 +1,19 @@
 import { User } from "../../../domain/models/user";
 import { AddUser } from "../../../domain/usecases/add-user/add-user";
+import { AddUserRepository } from "../../protocols/add-user-repository";
 import { Encrypter } from "../../protocols/encrypter";
 
 export class DbAddUser implements AddUser {
 
-    constructor(private encrypter: Encrypter){}
+    constructor(
+        private readonly encrypter: Encrypter,
+        private readonly addUserRepository: AddUserRepository
+    ){}
 
-    async add(user: Pick<User, "name" | "email" | "password">): Promise<User> {
+    async add(user: Pick<User, "name" | "email" | "password">): Promise<Omit<User, "password">> {
         
         await this.encrypter.encrypt(user.password)
-        return new Promise(resolve => resolve({
-            id: 1,
-            name: "created_name",
-            email: "created_email",
-            password: "created_pass"
-        }))
+        const userAdded = await this.addUserRepository.add(user)
+        return new Promise(resolve => resolve(userAdded))
     }
 }
