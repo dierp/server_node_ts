@@ -5,6 +5,7 @@
     "target": "es2020",
     "esModuleInterop": true,
     "allowJs": true,
+    "removeComments": true
     }
 }
 
