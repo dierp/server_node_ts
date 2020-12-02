@@ -1,3 +1,3 @@
 export interface EmailExistance {
-    alreadyExists(email: string): Promise<boolean> 
+  alreadyExists: (email: string) => Promise<boolean>
 }

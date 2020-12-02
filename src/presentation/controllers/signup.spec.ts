@@ -7,8 +7,8 @@ import { User } from '../../domain/models/user'
 
 interface Sut {
   sut: SignUpController
-  instanceEmailValidator: EmailValidator,
-  instanceEmailExistance: EmailExistance,
+  instanceEmailValidator: EmailValidator
+  instanceEmailExistance: EmailExistance
   instanceAddUser: AddUser
 }
 
@@ -28,16 +28,16 @@ const makeSut = (): Sut => {
   }
 }
 
-const makeEmailValidator = () => {
+const makeEmailValidator = (): EmailValidator => {
   class EmailValidatorStub implements EmailValidator {
-    isValid (email: string) {
+    isValid (email: string): boolean {
       return true
     }
   }
   return new EmailValidatorStub()
 }
 
-const makeEmailExistance = () => {
+const makeEmailExistance = (): EmailExistance => {
   class EmailExistanceStub implements EmailExistance {
     async alreadyExists (email: string): Promise<boolean> {
       return true
@@ -46,14 +46,14 @@ const makeEmailExistance = () => {
   return new EmailExistanceStub()
 }
 
-const makeAddUser = () => {
+const makeAddUser = (): AddUser => {
   class AddUserStub implements AddUser {
-    async add (user: Pick<User, "name" | "email" | "password">): Promise<User> {
-      return new Promise( resolve => resolve ({
+    async add (user: Pick<User, 'name' | 'email' | 'password'>): Promise<User> {
+      return new Promise(resolve => resolve({
         id: 1,
-        name: "fake_name",
-        email: "fake_email",
-        password: "fake_password"
+        name: 'fake_name',
+        email: 'fake_email',
+        password: 'fake_password'
       })
       )
     }
@@ -65,22 +65,21 @@ describe('SingUpController', () => {
   test('Should return 400 if there is a missing parameter', async () => {
     const { sut } = makeSut()
     const httpRequest: HttpRequest = {
-        body: {
-        }
+      body: {
+      }
     }
 
     const httpResponse: HttpResponse = await sut.handle(httpRequest)
-    expect (httpResponse.statusCode).toBe(400)
-    expect (httpResponse.body).toEqual( [
-         new MissingParamError('name'),
-         new MissingParamError('email'),
-         new MissingParamError('password'),
-         new MissingParamError('passwordConfirmation')
-        ] )
+    expect(httpResponse.statusCode).toBe(400)
+    expect(httpResponse.body).toEqual([
+      new MissingParamError('name'),
+      new MissingParamError('email'),
+      new MissingParamError('password'),
+      new MissingParamError('passwordConfirmation')
+    ])
   }),
 
   test('Should return 400 if email is not valid', async () => {
-
     const { sut, instanceEmailValidator } = makeSut()
     jest.spyOn(instanceEmailValidator, 'isValid').mockReturnValueOnce(false)
     const httpRequest: HttpRequest = {
@@ -93,15 +92,15 @@ describe('SingUpController', () => {
     }
     const httpResponse: HttpResponse = await sut.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
-    expect(httpResponse.body).toEqual( [
+    expect(httpResponse.body).toEqual([
       new InvalidParamError('email')
-    ] )
+    ])
   }),
 
   test('Should return 400 if email already exists', async () => {
     const { sut, instanceEmailExistance } = makeSut()
     jest.spyOn(instanceEmailExistance, 'alreadyExists').mockImplementationOnce(async () => {
-      return new Promise( (resolve, reject) => {
+      return new Promise((resolve, reject) => {
         resolve(false)
       })
     })
@@ -112,13 +111,13 @@ describe('SingUpController', () => {
         password: 'any_password',
         passwordConfirmation: 'any_password'
       }
-    } 
+    }
 
     const httpResponse: HttpResponse = await sut.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
-    expect(httpResponse.body).toEqual( [
+    expect(httpResponse.body).toEqual([
       new UserAlreadyExistsError('email')
-    ] )
+    ])
   }),
 
   test('Should return 400 if passwords dont match', async () => {
@@ -133,16 +132,16 @@ describe('SingUpController', () => {
     }
 
     const httpResponse: HttpResponse = await sut.handle(httpRequest)
-    expect (httpResponse.statusCode).toBe(400)
-    expect (httpResponse.body).toEqual( [
+    expect(httpResponse.statusCode).toBe(400)
+    expect(httpResponse.body).toEqual([
       new InvalidParamError('passwordConfirmation')
-        ] )
+    ])
   })
 
   test('Should return 500 if an exception occur during handle', async () => {
     const { sut, instanceEmailExistance } = makeSut()
     jest.spyOn(instanceEmailExistance, 'alreadyExists').mockImplementationOnce(async () => {
-      return new Promise( (resolve, reject) => {
+      return new Promise((resolve, reject) => {
         reject(new Error())
       })
     })
@@ -157,16 +156,16 @@ describe('SingUpController', () => {
     }
 
     const httpResponse: HttpResponse = await sut.handle(httpRequest)
-    expect (httpResponse.statusCode).toBe(500)
-    expect (httpResponse.body).toEqual( [
+    expect(httpResponse.statusCode).toBe(500)
+    expect(httpResponse.body).toEqual([
       new ServerError()
     ])
   }),
 
   test('Should return 500 if an exception occur with addUser', async () => {
     const { sut, instanceAddUser } = makeSut()
-    jest.spyOn(instanceAddUser, 'add').mockImplementationOnce(() => {
-      return new Promise( (resolve, reject) => {
+    jest.spyOn(instanceAddUser, 'add').mockImplementationOnce((): any => {
+      return new Promise((resolve, reject) => {
         reject(new Error())
       })
     })
@@ -181,8 +180,8 @@ describe('SingUpController', () => {
     }
 
     const httpResponse: HttpResponse = await sut.handle(httpRequest)
-    expect (httpResponse.statusCode).toBe(500)
-    expect (httpResponse.body).toEqual( [
+    expect(httpResponse.statusCode).toBe(500)
+    expect(httpResponse.body).toEqual([
       new ServerError()
     ])
   }),
@@ -199,13 +198,12 @@ describe('SingUpController', () => {
     }
 
     const httpResponse: HttpResponse = await sut.handle(httpRequest)
-    expect (httpResponse.statusCode).toBe(200)
-    expect (httpResponse.body).toEqual( {
+    expect(httpResponse.statusCode).toBe(200)
+    expect(httpResponse.body).toEqual({
       id: 1,
-      name: "fake_name",
-      email: "fake_email",
-      password: "fake_password"
-    } )
+      name: 'fake_name',
+      email: 'fake_email',
+      password: 'fake_password'
+    })
   })
-
 })
