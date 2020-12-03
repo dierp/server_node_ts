@@ -26,6 +26,7 @@
   "homepage": "https://github.com/dierp/server_node_ts#readme",
   "dependencies": {
     "bcrypt": "^5.0.0",
+    "dotenv": "^8.2.0",
     "knex": "^0.21.12",
     "mysql": "^2.18.1",
     "validator": "^13.5.1"
