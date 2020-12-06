@@ -5,5 +5,5 @@
 ### DEV
 * Code validation: Eslint-config-standard-with-typescript
 * Commit validation: Git-commit-msg-linter, Husky and Lint-staged
-* Tests: Jest, @types/jest, ts-jest and ts-node
+* Tests: Jest, @types/jest, ts-jest and ts-node, supertest(simulate http request)
 * Packages Management: npm-check
