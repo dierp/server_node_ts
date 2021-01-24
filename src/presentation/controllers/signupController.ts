@@ -1,21 +1,21 @@
-import { Controller, EmailValidator, EmailExistance, HttpRequest, HttpResponse } from '../protocols'
-import { MissingParamError, InvalidParamError, UserAlreadyExistsError } from '../errors'
+import { Controller, EmailValidator, HttpRequest, HttpResponse } from '../protocols'
+import { MissingParamError, InvalidParamError } from '../errors'
 import { badRequest, serverError, ok } from '../helpers'
 import { AddUser } from '../../domain/usecases/add-user/add-user'
 import { User } from '../../domain/models/user'
 
 export class SignUpController implements Controller {
   private readonly emailValidator: EmailValidator
-  private readonly emailExistance: EmailExistance
+  // private readonly emailExistance: EmailExistance
   private readonly addUser: AddUser
 
   constructor (
     emailValidator: EmailValidator,
-    emailExistance: EmailExistance,
+    // emailExistance: EmailExistance,
     addUser: AddUser
   ) {
     this.emailValidator = emailValidator
-    this.emailExistance = emailExistance
+    // this.emailExistance = emailExistance
     this.addUser = addUser
   }
 
@@ -38,9 +38,9 @@ export class SignUpController implements Controller {
         errors.push(new InvalidParamError('email'))
       }
 
-      if (!await this.emailExistance.alreadyExists(email)) {
-        errors.push(new UserAlreadyExistsError('email'))
-      }
+      // if (!await this.emailExistance.alreadyExists(email)) {
+      //   errors.push(new UserAlreadyExistsError('email'))
+      // }
 
       if (errors.length === 0) {
         const createdUser: Omit<User, 'password'> = await this.addUser.add({
